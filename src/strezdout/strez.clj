@@ -8,10 +8,7 @@
     (let [[test lines'] (split-by-pred matcher lines)] [test (next lines')])))
 (defn read-tests "Read all the tests from given lines (should be lines of a single category)"
   ([lines] (if lines (let [[test lines'] (read-test lines)]
-                       (lazy-seq (cons test (read-tests lines'))))))
-  ([tests lines] (if lines (let [[test lines'] (read-test lines)]
-                             (lazy-seq (cons test )))
-                           tests)))
+                       (lazy-seq (cons test (read-tests lines')))))))
 
 ; read single category with its tests, return it and rest of lines
 (let [delim "TESTCATEGORY"
@@ -25,9 +22,6 @@
         [{(subs catname name-index) (read-tests category)} lines']
         nil))))
 (defn read-categories "Read all the categories"
-  ([lines] (read-categories [] lines))
-  ([categories lines] (if (empty? lines) categories
-                        (let [[category lines'] (read-category lines)]
-                          (recur (conj categories category) lines')))))
-
-()
+  ([lines] (if (not (empty? lines))
+             (let [[category lines'] (read-category lines)]
+               (lazy-seq (cons category (read-categories lines')))))))
