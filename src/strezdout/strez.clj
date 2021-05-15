@@ -1,5 +1,6 @@
 (ns strezdout.strez
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.java.shell :refer [sh]]))
 
 (defn split-by-pred [pred coll] [(take-while pred coll) (drop-while pred coll)])
 
