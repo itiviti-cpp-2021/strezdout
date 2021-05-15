@@ -1,28 +1,33 @@
 (ns strezdout.strez
   (:require [clojure.string :as str]))
 
-(defn index-of [pred coll] (let [[ans & _] (keep-indexed #(when (pred %2) %1) coll)]
-                             (if ans ans (count coll))))
-(defn split-at-pred [pred coll] (split-at (index-of pred coll) coll))
+(defn split-by-pred [pred coll] [(take-while pred coll) (drop-while pred coll)])
 
-; read single test from sequence of lines, return new tests and rest of lines
-(let [matcher (partial = "TESTLOLKEKTEST")]
-  (defn read-test [tests lines]
-    (let [[test lines'] (split-at-pred matcher lines)]
-     [(conj tests test) (next lines')])))
-(defn read-tests
-  ([lines] (read-tests [] lines))
-  ([tests lines] (if lines (let [[tests' lines'] (read-test tests lines)]
-                             (recur tests' lines'))
+(let [matcher (complement (partial = "TESTLOLKEKTEST"))]
+  (defn read-test "Read single test from sequence of lines" [lines]
+    (let [[test lines'] (split-by-pred matcher lines)] [test (next lines')])))
+(defn read-tests "Read all the tests from given lines (should be lines of a single category)"
+  ([lines] (if lines (let [[test lines'] (read-test lines)]
+                       (lazy-seq (cons test (read-tests lines'))))))
+  ([tests lines] (if lines (let [[test lines'] (read-test lines)]
+                             (lazy-seq (cons test )))
                            tests)))
 
+; read single category with its tests, return it and rest of lines
 (let [delim "TESTCATEGORY"
       name-index (count (str delim " "))
-      matcher (partial re-find #"^TESTCATEGORY\s.*$")]
-  (defn read-category [lines]
+      matcher (complement (partial re-find #"^TESTCATEGORY\s.*$"))]
+  (defn read-category "Read single category from sequence of lines" [lines]
     (let [catname (first lines)
           next-lines (next lines)
-          [category lines'] (split-at-pred matcher next-lines)]
+          [category lines'] (split-by-pred matcher next-lines)]
       (if (str/starts-with? catname delim)
         [{(subs catname name-index) (read-tests category)} lines']
         nil))))
+(defn read-categories "Read all the categories"
+  ([lines] (read-categories [] lines))
+  ([categories lines] (if (empty? lines) categories
+                        (let [[category lines'] (read-category lines)]
+                          (recur (conj categories category) lines')))))
+
+()
