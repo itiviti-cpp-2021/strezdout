@@ -1,5 +1,5 @@
 (ns strezdout.strez-confs
-  (:require [strezdout.fileutil :refer [testers-canonize]]))
+  (:require [strezdout.osutil :refer [testers-canonize]]))
 
 (let [configs'
    {:fibonacci {:generator [:clojure "generator.clj"]

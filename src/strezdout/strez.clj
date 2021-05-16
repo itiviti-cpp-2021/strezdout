@@ -11,7 +11,6 @@
   ([lines] (if lines (let [[test lines'] (read-test lines)]
                        (lazy-seq (cons test (read-tests lines')))))))
 
-; read single category with its tests, return it and rest of lines
 (let [delim "TESTCATEGORY"
       name-index (count (str delim " "))
       matcher (complement (partial re-find #"^TESTCATEGORY\s.*$"))]
