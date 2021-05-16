@@ -2,6 +2,11 @@
 #include "fibonacci.h"
 
 int main() {
-  std::cout << fibonacci(10) << std::endl;
+  int n;
+  std::cin >> n;
+  std::cout << "STARTTEST" << std::endl;
+  int result = fibonacci(n);
+  std::cout << "ENDTEST" << std::endl;
+  std::cout << result;
   return 0;
 }

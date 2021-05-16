@@ -4,8 +4,7 @@
   :license {:name "APACHE LICENSE, VERSION 2.0"
             :url "https://www.apache.org/licenses/LICENSE-2.0"}
   :dependencies [[org.clojure/clojure "1.10.1"]
-                 [ring/ring-core "1.9.3"]
-                 [ring/ring-jetty-adapter "1.9.3"]]
+                 [babashka/process "0.0.2"]]
   :main ^:skip-aot strezdout.core
   :target-path "target/%s"
   :profiles {})

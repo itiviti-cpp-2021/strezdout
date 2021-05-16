@@ -1,11 +1,13 @@
 (ns strezdout.osutil
-  (:require [clojure.java.io :refer [file]]
+  (:require [clojure.java.io :as io]
             [clojure.java.shell :refer [sh]]
             [clojure.string :as string]))
 
-(defn join [& path] (apply file path))
+(defn sh-log-wrapper [f] #(println (:out (apply f %&))))
 
-(defn canonize [& path] (.getCanonicalPath (apply file path)))
+(defn join [& path] (apply io/file path))
+
+(defn canonize [& path] (.getCanonicalPath (apply io/file path)))
 
 (def testers-canonize (partial canonize "resources" "testers"))
 
@@ -15,8 +17,8 @@
 
 (defn rm! [path] (sh "rm" "-rf" path))
 
-(defn copy! [from to] (println (sh "cp" "-R" from to)))
+(defn copy! [from to] (sh "cp" "-R" from to))
 
-(defn cmake! [build source] (println (sh "cmake" "-B" build "-S" source)))
+(defn cmake! [build source] (sh "cmake" "-B" build "-S" source))
 
 (defn make! [build target] (sh "make" "-C" build target))
