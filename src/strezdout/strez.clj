@@ -35,19 +35,20 @@
 (defn get-answer [out]
   (first out) ; /should/ be STARTTEST
   ; second /should/ be ENDTEST
-  [(bench (second out)) (nthrest out 2)])
+  [(bench (second out)) (bench (nth out 2)) (nthrest out 3)])
 
 (defn single-test [tester-out testee-out]
-  (let [[_ tester-answer] (get-answer tester-out)
-        [time testee-answer] (get-answer testee-out)]
-    [(= tester-answer testee-answer) time]))
+  (let [[_ _ tester-answer] (get-answer tester-out)
+        [init-time run-time testee-answer] (get-answer testee-out)]
+    [(= tester-answer testee-answer) init-time run-time]))
 
 (def launch (comp line-seq io/reader :out bb/process))
 
 (defn run-tests [tests tester testee workdir]
-  (for [[ok time test]
+  (for [[ok init-time run-time test]
         (for [test tests]
           (conj (single-test
            (launch [tester] {:in test :dir workdir})
            (launch [testee] {:in test :dir workdir})) test))]
-    (if ok (str "PASSED " time) (str "FAILED (" test ")"))))
+    (if ok (str "PASSED [init time = " init-time "; run time = " run-time "]")
+           (str "FAILED [" test "]"))))
