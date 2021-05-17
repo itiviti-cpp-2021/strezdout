@@ -1,6 +1,6 @@
 (ns strezdout.core
   (:require [strezdout
-             [bobthebuildr :refer [prepare-confs! build! launch-options]]
+             [bobthebuildr :refer [build! launch-options]]
              [strez :refer [read-categories run-tests]]
              [osutil :refer [testers-canonize canonize rm!]]
              [configs :refer [configs]]]
@@ -13,7 +13,6 @@
   (let [task (keyword task')
         config (configs task)
         task-config (select-keys configs [task])]
-    (prepare-confs! task-config)
     (let [bindir (build! task config sources includes)
           tester (canonize bindir (get-in config [:tests :tester]))
           testee (canonize bindir (get-in config [:tests :testee]))
