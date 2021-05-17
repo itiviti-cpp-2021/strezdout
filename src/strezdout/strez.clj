@@ -1,6 +1,7 @@
 (ns strezdout.strez
   (:require [clojure.string :as str]
             [clojure.java.io :as io]
+            [clojure.tools.logging :as logging]
             [babashka.process :as bb]))
 
 (defn split-by-pred [pred coll] [(take-while pred coll) (drop-while pred coll)])
@@ -32,23 +33,44 @@
       ~@forms
       (double (/ (- (System/nanoTime) start-time#) 1e9))))
 
-(defn get-answer [out]
-  (first out) ; /should/ be STARTTEST
-  ; second /should/ be ENDTEST
-  [(bench (second out)) (bench (nth out 2)) (nthrest out 3)])
+(let [matcher (complement (partial = "TEST_DONE"))]
+  (defn get-answer [{out :out in :in :as process} test]
+    (.write in (str test "\n"))
+    (.flush in)
+    (first out) ; /should/ be STARTTEST
+    (let [time (bench (second out)) ; second /should/ be ENDTEST
+          [answer lines] (split-by-pred matcher (nthrest out 2))]
+      [time answer (assoc process :out (lazy-seq (next lines)))])))
 
-(defn single-test [tester-out testee-out]
-  (let [[_ _ tester-answer] (get-answer tester-out)
-        [init-time run-time testee-answer] (get-answer testee-out)]
-    [(= tester-answer testee-answer) init-time run-time]))
+(defn run-test [tester testee test]
+  (let [[_ tester-answer tester'] (get-answer tester test)
+        [run-time testee-answer testee'] (get-answer testee test)]
+    [(= tester-answer testee-answer) run-time tester' testee']))
 
-(def launch (comp line-seq io/reader :out bb/process))
+(defn launch [program workdir]
+    (-> (bb/process program {:dir workdir})
+        (update :out #(line-seq (io/reader %)))
+        (update :in #(io/writer %))))
+
+(defn measure-launch [& args]
+  (let [process (apply launch args)
+        out (:out process)]
+    (first out)
+    [(bench (second out)) (update process :out #(drop 2 %))]))
+
+(defn format-double [x] (format "%f" x))
+
+(defn lazy-tests [[test & rest-tests] tester-proc testee-proc]
+  (if (nil? test)
+    nil
+    (lazy-seq
+     (let [[ok time tester-proc' testee-proc']
+           (run-test tester-proc testee-proc test)]
+       (cons (if ok (str "PASSED [run time = " (format-double time) "]")
+              (str "FAILED [" test "]"))
+             (lazy-tests rest-tests tester-proc' testee-proc'))))))
 
 (defn run-tests [tests tester testee workdir]
-  (for [[ok init-time run-time test]
-        (for [test tests]
-          (conj (single-test
-           (launch [tester] {:in test :dir workdir})
-           (launch [testee] {:in test :dir workdir})) test))]
-    (if ok (str "PASSED [init time = " init-time "; run time = " run-time "]")
-           (str "FAILED [" test "]"))))
+  (let [[_ tester-proc] (measure-launch [tester] workdir)
+        [init-time testee-proc] (measure-launch [testee] workdir)]
+    (cons (str "init time = " init-time) (lazy-tests tests tester-proc testee-proc))))

@@ -6,19 +6,15 @@
              [configs :refer [configs]]]
             [clojure.java.io :as io]
             [clojure.string :as str]
-            [clojure.tools.logging :as logging]
-            [clojure.tools.logging.impl :as logging.impl]
             [babashka.process :as bb])
   (:gen-class))
 
 (defn main [task' sources includes]
-  (let [logging-factory (logging.impl/find-factory)
-        logger (logging.impl/get-logger logging-factory *ns*)
-        task (keyword task')
+  (let [task (keyword task')
         config (configs task)
         task-config (select-keys configs [task])]
-    (prepare-confs! logger task-config)
-    (let [bindir (build! logger task config sources includes)
+    (prepare-confs! task-config)
+    (let [bindir (build! task config sources includes)
           tester (canonize bindir (get-in config [:tests :tester]))
           testee (canonize bindir (get-in config [:tests :testee]))
           workdir (testers-canonize task')
@@ -27,8 +23,8 @@
           testlines (line-seq (io/reader (:out generator)))
           categories (read-categories testlines)]
       (doseq [[category tests] categories]
-        ((comp println str) "TESTING CATEGORY " category "\n"
-                            (str/join "\n" (run-tests tests tester testee workdir))))
+        (println "TESTING CATEGORY" category)
+        (doall (map println (run-tests tests tester testee workdir))))
       (rm! bindir)))
   (shutdown-agents))
 

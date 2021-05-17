@@ -3,7 +3,7 @@
             [clojure.tools.logging :as logging]
             [clojure.java.shell :refer [sh]]))
 
-(defn prepare-confs! "Prepare configs for testing by building the testers" [logger configs]
+(defn prepare-confs! "Prepare configs for testing by building the testers" [configs]
   (mkdir! (canonize "built")) ; directory for all built configs
   (doseq [[task' {{:keys [tester executable library include]} :tests copy :copy}] configs
           :let [task (name task')
@@ -22,7 +22,7 @@
     (rm! task-build-path)
     (rm! tester-include-path)))
 
-(defn build! "Create temp directory, copy sources to it and build" [logger task' config sources includes]
+(defn build! "Create temp directory, copy sources to it and build" [task' config sources includes]
   (let [{{:keys [testee executable]} :tests} config
         task (name task')
         directory (canonize (tmpdir!) task)
@@ -42,4 +42,5 @@
 
 (defn launch-options "Get launch options for launching a specified generator" [[type path]]
   (case type
-    :clojure ["lein" "exec" path]))
+    :clojure ["lein" "exec" path]
+    :binary [path]))

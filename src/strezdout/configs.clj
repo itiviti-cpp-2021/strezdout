@@ -8,7 +8,14 @@
                         :executable "fibonacci"
                         :library "libfibonacci_lib.a"
                         :include "include"}
-                :copy ["fibonacci.cpp" "CMakeLists.txt"]}}]
+                :copy ["fibonacci.cpp" "CMakeLists.txt"]}
+    :wordnet {:generation [:binary "test_gen"]
+              :tests {:tester "wordnet_tester"
+                      :testee "wordnet_tesee"
+                      :executable "wordnet"
+                      :library "libwordnet_lib.a"
+                      :include "include"}
+              :copy ["wordnet.cpp" "CMakeLists.txt" "words.txt" "synsets.txt" "hypernyms.txt"]}}]
   (def configs (into {} (for [[task
                                {[_ generator] :generation
                                 {:keys [library include]} :tests
