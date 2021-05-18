@@ -11,7 +11,7 @@
                 :copy ["fibonacci.cpp" "CMakeLists.txt"]}
     :wordnet {:generation [:binary "test_gen"]
               :tests {:tester "wordnet_tester"
-                      :testee "wordnet_tesee"
+                      :testee "wordnet_testee"
                       :executable "wordnet"
                       :library "libwordnet_lib.a"
                       :include "include"}

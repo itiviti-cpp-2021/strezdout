@@ -21,7 +21,6 @@ int main()
 
     std::string line;
     while (std::getline(std::cin, line)) {
-        std::cerr << line << std::endl;
         std::istringstream iss(line);
         std::vector<std::string> words(std::istream_iterator<std::string>{iss},
                                        std::istream_iterator<std::string>{});

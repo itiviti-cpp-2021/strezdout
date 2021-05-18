@@ -12,19 +12,19 @@
 (defn main [task' sources includes]
   (let [task (keyword task')
         config (configs task)
-        task-config (select-keys configs [task])]
-    (let [bindir (build! task config sources includes)
-          tester (canonize bindir (get-in config [:tests :tester]))
-          testee (canonize bindir (get-in config [:tests :testee]))
-          workdir (testers-canonize task')
-          generator (bb/process (launch-options (:generation config))
-                                {:dir workdir})
-          testlines (line-seq (io/reader (:out generator)))
-          categories (read-categories testlines)]
-      (doseq [[category tests] categories]
-        (println "TESTING CATEGORY" category)
-        (doall (map println (run-tests tests tester testee workdir))))
-      (rm! bindir)))
+        task-config (select-keys configs [task])
+        workdir (testers-canonize task')
+        generator (bb/process (launch-options (:generation config))
+                              {:dir workdir})
+        testlines (line-seq (io/reader (:out generator)))
+        categories (read-categories testlines)
+        bindir (build! task config sources includes)
+        tester (canonize bindir (get-in config [:tests :tester]))
+        testee (canonize bindir (get-in config [:tests :testee]))]
+    (doseq [[category tests] categories]
+      (println "TESTING CATEGORY" category)
+      (doall (map println (run-tests tests tester testee workdir))))
+    (rm! bindir))
   (shutdown-agents))
 
 (defn check-args [args]
