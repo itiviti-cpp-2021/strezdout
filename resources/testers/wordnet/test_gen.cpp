@@ -44,7 +44,6 @@ int main()
         {"small", 15},
         {"medium", 80},
         {"big", 500},
-        {"large", 2000},
     };
 
     for (const auto &[name, maxSize] : unique) {
