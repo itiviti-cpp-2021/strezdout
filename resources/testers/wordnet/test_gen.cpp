@@ -44,19 +44,19 @@ int main()
         {"small", 15},
         {"medium", 80},
         {"big", 500},
+        {"large", 1000},
     };
 
-    for (const auto &[name, maxSize] : unique) {
-        std::uniform_int_distribution<std::size_t> sizeDist(1, maxSize);
+    for (const auto &[name, size] : unique) {
         runCategory(name, [&] {
             std::vector<std::string> query;
-            std::sample(words.begin(), words.end(), std::back_inserter(query), sizeDist(rng), rng);
+            std::sample(words.begin(), words.end(), std::back_inserter(query), size, rng);
             std::shuffle(query.begin(), query.end(), rng);
             return query;
         });
     }
 
-    const std::vector<std::size_t> repeated {10, 25, 50, 75, 90};
+    const std::vector<std::size_t> repeated {10, 50, 90};
 
     for (const auto perc : repeated) {
         runCategory("repeated_" + std::to_string(perc), [&] {
