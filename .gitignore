@@ -12,3 +12,4 @@ pom.xml.asc
 .hg/
 /built
 Clojure REPL
+.DS_Store
