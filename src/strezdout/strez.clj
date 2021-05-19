@@ -45,10 +45,10 @@
 (defn run-test [tester testee test]
   (let [[_ tester-answer tester'] (get-answer tester test)
         [run-time testee-answer testee'] (get-answer testee test)]
-    [(= tester-answer testee-answer) run-time tester' testee']))
+    [tester-answer testee-answer run-time tester' testee']))
 
 (defn launch [program workdir]
-    (-> (bb/process program {:dir workdir})
+    (-> (bb/process program {:dir workdir :err :inherit})
         (update :out #(line-seq (io/reader %)))
         (update :in #(io/writer %))))
 
@@ -60,17 +60,24 @@
 
 (defn format-double [x] (format "%f" x))
 
-(defn lazy-tests [[test & rest-tests] tester-proc testee-proc]
+(defn cons-if [condition a b]
+  (if condition (cons a b) b))
+
+(defn lazy-tests [include-tests n [test & rest-tests] tester-proc testee-proc]
   (if (nil? test)
     nil
-    (lazy-seq
-     (let [[ok time tester-proc' testee-proc']
-           (run-test tester-proc testee-proc test)]
-       (cons (if ok (str "PASSED [run time = " (format-double time) "]")
-              (str "FAILED [" test "]"))
-             (lazy-tests rest-tests tester-proc' testee-proc'))))))
+    (cons-if include-tests (str "[" n "] Test [" test "]")
+             (lazy-seq
+              (let [[tester-answer testee-answer time tester-proc' testee-proc']
+                    (run-test tester-proc testee-proc test)
+                    ok (= tester-answer testee-answer)
+                    tst (str "[" n "] ")]
+                (cons (if ok (str tst "\u001b[32mPASSED\u001b[0m [run time = " (format-double time) "]")
+                       (str tst "\u001b[31mFAILED\u001b[0m [tester answer = " tester-answer
+                                                 "; testee answer = " testee-answer "]"))
+                      (lazy-tests include-tests (inc n) rest-tests tester-proc' testee-proc')))))))
 
-(defn run-tests [tests tester testee workdir]
+(defn run-tests [include-tests tests tester testee workdir]
   (let [[_ tester-proc] (measure-launch [tester] workdir)
         [init-time testee-proc] (measure-launch [testee] workdir)]
-    (cons (str "init time = " init-time) (lazy-tests tests tester-proc testee-proc))))
+    (cons (str "init time = " init-time) (lazy-tests include-tests 0 tests tester-proc testee-proc))))

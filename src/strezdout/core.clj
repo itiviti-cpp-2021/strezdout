@@ -9,8 +9,9 @@
             [babashka.process :as bb])
   (:gen-class))
 
-(defn main [task' sources includes]
-  (let [task (keyword task')
+(defn main [task' sources includes & extra]
+  (let [include-tests (= (first extra) "printtests")
+        task (keyword task')
         config (configs task)
         task-config (select-keys configs [task])
         workdir (testers-canonize task')
@@ -22,13 +23,13 @@
         tester (canonize bindir (get-in config [:tests :tester]))
         testee (canonize bindir (get-in config [:tests :testee]))]
     (doseq [[category tests] categories]
-      (println "TESTING CATEGORY" category)
-      (doall (map println (run-tests tests tester testee workdir))))
+      (println "\u001b[38;5;208mTESTING CATEGORY\u001b[0m" category)
+      (doall (map println (run-tests include-tests tests tester testee workdir))))
     (rm! bindir))
   (shutdown-agents))
 
 (defn check-args [args]
-  (and (= 3 (count args)) (contains? configs (keyword (first args)))))
+  (and (>= (count args) 3) (contains? configs (keyword (first args)))))
 
 (defn -main [& args]
   (if (not (check-args args))

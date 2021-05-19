@@ -13,7 +13,8 @@ def create_argparser():
                                 choices=["wordnet", "2d-tree", "8-puzzle", "genome-assembly"])
     parser.add_argument("sources", help="Path to source directory")
     parser.add_argument("includes", help="Path to include directory")
-    parser.add_argument("-r", "--rebuild", dest="rebuild", default=False, action='store_true',
+    parser.add_argument("-print", help="Print tests", default=False, action='store_true')
+    parser.add_argument("-rebuild", default=False, action='store_true',
                         help="Rebuild the image if an update is needed")
     return parser
 
@@ -37,8 +38,9 @@ def main(args):
     if args.rebuild or b'strezdout' not in \
             subprocess.check_output("docker images --filter reference='strezdout:1.0'", shell=True):
         run_with_stdout("docker build . --tag strezdout:1.0")
-    run_with_stdout("docker run -ti --volume {}:/src --volume {}:/include --rm strezdout:1.0 {}"
-                        .format(args.sources, args.includes, args.task))
+    run_with_stdout("docker run -ti --volume {}:/src --volume {}:/include --rm strezdout:1.0 {} {}"
+                        .format(args.sources, args.includes, args.task,
+                            ("printtests" if args.print else "lol")))
 
 
 if __name__ == '__main__':

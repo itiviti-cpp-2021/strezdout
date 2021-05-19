@@ -15,7 +15,14 @@
                       :executable "wordnet"
                       :library "libwordnet_lib.a"
                       :include "include"}
-              :copy ["wordnet.cpp" "CMakeLists.txt" "words.txt" "synsets.txt" "hypernyms.txt"]}}]
+              :copy ["wordnet.cpp" "CMakeLists.txt" "words.txt" "synsets.txt" "hypernyms.txt"]}
+    :8-puzzle {:generation [:binary "generator"]
+               :tests {:tester "8puzzle_tester"
+                       :testee "8puzzle_testee"
+                       :executable "8puzzle"
+                       :library "lib8puzzle_lib.a"
+                       :include "include"}
+               :copy ["8puzzle.cpp" "CMakeLists.txt"]}}]
   (def configs (into {} (for [[task
                                {[_ generator] :generation
                                 {:keys [library include]} :tests
