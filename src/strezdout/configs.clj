@@ -5,23 +5,17 @@
    {:fibonacci {:generation [:clojure "generator.clj"]
                 :tests {:tester "tester"
                         :testee "testee"
-                        :executable "fibonacci"
-                        :library "libfibonacci_lib.a"
-                        :include "include"}
+                        :executable "fibonacci"}
                 :copy ["fibonacci.cpp" "CMakeLists.txt"]}
     :wordnet {:generation [:binary "test_gen"]
               :tests {:tester "wordnet_tester"
                       :testee "wordnet_testee"
-                      :executable "wordnet"
-                      :library "libwordnet_lib.a"
-                      :include "include"}
+                      :executable "wordnet"}
               :copy ["wordnet.cpp" "CMakeLists.txt" "words.txt" "synsets.txt" "hypernyms.txt"]}
     :8-puzzle {:generation [:binary "generator"]
                :tests {:tester "8puzzle_tester"
                        :testee "8puzzle_testee"
-                       :executable "8puzzle"
-                       :library "lib8puzzle_lib.a"
-                       :include "include"}
+                       :executable "8puzzle"}
                :copy ["8puzzle.cpp" "CMakeLists.txt"]}}]
   (def configs (into {} (for [[task
                                {[_ generator] :generation
@@ -30,6 +24,4 @@
                               :let [canonize-task (partial testers-canonize (name task))]]
                           [task (-> task-config
                                     (assoc-in [:generation 1] (canonize-task generator))
-                                    (assoc-in [:tests :library] (canonize-task library))
-                                    (assoc-in [:tests :include] (canonize-task include))
                                     (assoc :copy (mapv canonize-task copy)))]))))
