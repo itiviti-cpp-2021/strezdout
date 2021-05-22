@@ -73,8 +73,9 @@
                     ok (= tester-answer testee-answer)
                     tst (str "[" n "] ")]
                 (cons (if ok (str tst "\u001b[32mPASSED\u001b[0m [run time = " (format-double time) "]")
-                       (str tst "\u001b[31mFAILED\u001b[0m [tester answer = " tester-answer
-                                                 "; testee answer = " testee-answer "]"))
+                       (str tst "\u001b[31mFAILED\u001b[0m [" (if include-tests "" (str "test = " test "; "))
+                            "tester answer = " tester-answer
+                            "; testee answer = " testee-answer "]"))
                       (lazy-tests include-tests (inc n) rest-tests tester-proc' testee-proc')))))))
 
 (defn run-tests [include-tests tests tester testee workdir]
