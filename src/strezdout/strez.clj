@@ -5,10 +5,11 @@
             [babashka.process :as bb]))
 
 (defn split-by-pred [pred coll] [(take-while pred coll) (drop-while pred coll)])
+(defn join-lines [coll] (str/join "\n" coll))
 
 (let [matcher (complement (partial = "TESTLOLKEKTEST"))]
   (defn read-test "Read single test from sequence of lines" [lines]
-    (let [[test lines'] (split-by-pred matcher lines)] [(str/join "\n" test) (next lines')])))
+    (let [[test lines'] (split-by-pred matcher lines)] [(join-lines test) (next lines')])))
 (defn read-tests "Read all the tests from given lines (should be lines of a single category)"
   ([lines] (if lines (let [[test lines'] (read-test lines)]
                        (cons test (lazy-seq (read-tests lines')))))))
@@ -63,9 +64,9 @@
 (defn cons-if [condition a b]
   (if condition (cons a b) b))
 
-(defn lazy-tests [include-tests n [test & rest-tests] tester-proc testee-proc]
+(defn lazy-tests [include-tests n timesum [test & rest-tests] tester-proc testee-proc]
   (if (nil? test)
-    nil
+    (list (str "Category average time = " (format-double (/ timesum n))))
     (cons-if include-tests (str "[" n "] Test [" test "]")
              (lazy-seq
               (let [[tester-answer testee-answer time tester-proc' testee-proc']
@@ -74,11 +75,12 @@
                     tst (str "[" n "] ")]
                 (cons (if ok (str tst "\u001b[32mPASSED\u001b[0m [run time = " (format-double time) "]")
                        (str tst "\u001b[31mFAILED\u001b[0m [" (if include-tests "" (str "test = " test "; "))
-                            "tester answer = " tester-answer
-                            "; testee answer = " testee-answer "]"))
-                      (lazy-tests include-tests (inc n) rest-tests tester-proc' testee-proc')))))))
+                            "tester answer = " (join-lines tester-answer)
+                            "; testee answer = " (join-lines testee-answer) "]"))
+                      (lazy-tests include-tests (inc n) (+ timesum time)
+                                  rest-tests tester-proc' testee-proc')))))))
 
 (defn run-tests [include-tests tests tester testee workdir]
   (let [[_ tester-proc] (measure-launch [tester] workdir)
         [init-time testee-proc] (measure-launch [testee] workdir)]
-    (cons (str "init time = " init-time) (lazy-tests include-tests 0 tests tester-proc testee-proc))))
+    (cons (str "init time = " init-time) (lazy-tests include-tests 0 0 tests tester-proc testee-proc))))
