@@ -54,7 +54,7 @@ void test_solver(vector<vector<unsigned>> & a)
 
     // don't print moves, because there might be different paths to solve
 
-    if (board.is_solvable()) {
+    if (solution.begin() != solution.end() && board.is_solvable()) {
         auto it = --solution.end();
         print("board", *it);
         print("result", it->is_solvable());
@@ -72,7 +72,7 @@ int main()
     while (std::getline(std::cin, test[0])
            && std::getline(std::cin, test[1])
            && std::getline(std::cin, test[2])) {
-        out.clear();
+        //out.clear(); this doesn't work :P
         std::istringstream iss(test[0]+" "+test[1]+" "+test[2]);
         string tag;
         size_t n;
@@ -94,12 +94,14 @@ int main()
         }
     	else if (tag == "solver")
         {
+            print("board", Board(a));
             test_solver(a);
         }
 
         cout << "TIME_END" << std::endl;
 
         cout << out.str() << std::endl;
+        out.str(""); // but this works :)
         cout << "TEST_DONE" << endl;
     }
 }
