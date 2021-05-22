@@ -47,7 +47,8 @@ int main()
         {"large", 1000},
     };
 
-    for (const auto &[name, size] : unique) {
+    for (const auto &[name, _size] : unique) {
+        const auto size = _size;
         runCategory(name, [&] {
             std::vector<std::string> query;
             std::sample(words.begin(), words.end(), std::back_inserter(query), size, rng);
