@@ -66,7 +66,7 @@
 
 (defn lazy-tests [include-tests n timesum [test & rest-tests] tester-proc testee-proc]
   (if (nil? test)
-    (list (str "Category average time = " (format-double (/ timesum n))))
+    (list (str "Category average time = " (format-double (/ timesum n))) (str "Category sum time = " (format-double timesum)))
     (cons-if include-tests (str "[" n "] Test [" test "]")
              (lazy-seq
               (let [[tester-answer testee-answer time tester-proc' testee-proc']

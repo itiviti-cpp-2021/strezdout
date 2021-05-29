@@ -16,7 +16,12 @@
                :tests {:tester "8puzzle_tester"
                        :testee "8puzzle_testee"
                        :executable "8puzzle"}
-               :copy ["8puzzle.cpp" "CMakeLists.txt"]}}]
+               :copy ["8puzzle.cpp" "CMakeLists.txt"]}
+    :2d-tree {:generation [:binary "2dtree_gen"]
+               :tests {:tester "2dtree_test"
+                       :testee "2dtree_testee"
+                       :executable "2dtree"}
+               :copy ["2dtree.cpp" "CMakeLists.txt"]}}]
   (def configs (into {} (for [[task
                                {[_ generator] :generation
                                 {:keys [library include]} :tests
