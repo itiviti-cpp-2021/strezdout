@@ -28,14 +28,14 @@ vector<vector<unsigned>> b4 = {
     {1,5,6,10,8,0,9,12,2,14,13,4,15,7,3,11} // unsolvable
 };
 
-template <int n, bool permute = true>
+template <int n, bool permute = true, bool small = false>
 function make_board_test
 {
     [](ostream& s)
     {
         vector<unsigned> a(n * n);
 
-        if (n == 4 && permute) {
+        if (n == 4 && small) {
             a = b4[prng() % b4.size()];
 
         } else {
@@ -90,17 +90,19 @@ int main()
     generate("board_empty", 1, make_board_test<0>);
     generate("board_one", 1, make_board_test<1>);
     generate("board_two", 6, make_board_test<2>);
-    generate("board_three", 10, make_board_test<2>);
-    generate("board_four", 12, make_board_test<4>);
-    generate("board_ten", 4, make_board_test<10>);
-    generate("board_nineteen", 4, make_board_test<19>);
+    generate("board_three", 15, make_board_test<2>);
+    generate("board_four", 24, make_board_test<4>);
+    generate("board_ten", 20, make_board_test<10>);
+    generate("board_nineteen", 15, make_board_test<19>);
 
     /// test solver
     generate("solver_empty", 1, make_board_test<0>);
     generate("solver_one", 1, make_board_test<1>);
     generate("solver_two", 6, make_board_test<2>);
-    generate("solver_three", 10, make_board_test<3>);
-    generate("solver_four", 6, make_board_test<4>);
+    generate("solver_three", 30, make_board_test<3>);
+    generate("solver_four_small", 15, make_board_test<4, true, true>);
+    generate("solver_four_full", 60, make_board_test<4>);
+    generate("solver_five", 40, make_board_test<5>);
 
     /// test solver tricky
     generate("solver_three_solved", 1, make_board_test<3, false>);
