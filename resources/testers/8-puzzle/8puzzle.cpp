@@ -41,7 +41,8 @@ void test_solver(vector<vector<unsigned>> & a)
     Board board(a);
     auto solution = Solver::solve(board);
 
-    print("moves", solution.moves());
+    // explanation: the task is to solve an 8-puzzle using a <b>heuristic</b> function
+    // print("moves", solution.moves());
     vector<unsigned> dummy;
 
     for (const Board &i: solution) {
