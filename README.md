@@ -1,6 +1,6 @@
 # strezdout
 A budget stress tester for your C++ projects.  
-[По русски](#я-русский)
+[По-русски](#я-русский)
 
 ## What
 A tool for stress testing your lab solution with randomly generated tests. Features include:
